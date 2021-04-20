@@ -1,0 +1,280 @@
+set -o vi
+
+export PATH=$PATH:~/bin
+
+source parseDSV.sh
+
+# --- WEX -------------------------------------------------------------
+export DEVADDRESS='efsappdev1.efs.local'
+export DITADDRESS='msp-wex-1006'
+
+function grepc(){
+	grep -rn $1 --include="*.ec" --include="*.c"
+}
+
+function greph(){
+	grep -rn $1 --include="*.h"
+}
+# --- WEX -------------------------------------------------------------
+
+export EDITOR=vim
+export BC_ENV_ARGS=~/.bcrc
+
+export PS1="\e[01;34m--- [\e[01;32m\u\e[00m@\e[01;31m\h\e[00m \t \D{%d/%m/%Y}\e[01;34m] ----------------------------------------------\033[00m\n\w \$ "
+export PS2="block $PS2"
+export PS4="sh debug> "
+
+alias ll='ls -laF'
+alias lt='ls -laFtr'
+alias la='ls -A'
+alias l='ls -aF'
+alias lsz='ls --human-readable --size -1 -S -laF --classify'
+
+alias grep='grep --color=always'
+
+alias vi='vim -p'
+alias bc='bc -lq'
+alias diffc='diff -BZEwby -W $COLUMNS --strip-trailing-cr --color'
+alias rmd='rm -rf'
+
+alias hexdump='hexdump -Cv'
+alias ldd='ldd -v'
+alias ldconfig='ldconfig -p'
+alias readelf='readelf -a'
+alias dumpobj='objdump -D'
+alias nm='nm -A -a --demangle -l'
+alias ltrace='ltrace -S --demangle -f -i'
+alias strace='strace -i -y'
+
+alias lsblk='lsblk -ampfz'
+alias findmnt='findmnt -Ae'
+alias df='df -ahT'
+
+alias cryptPKey="gpg --encrypt --sign --armor"
+alias decryptPKey="gpg --decrypt"
+
+function cryptAES256()
+{
+	if [ -n "$1" ]; then
+		gpg -o "$1".gpg --symmetric --armor --cipher-algo AES256 "$1"
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} file_to_encrypt"
+	fi
+}
+
+function decryptAES256()
+{
+	if [ -n "$1" ]; then
+		gpg -o "$1"_out -d "$1"
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} file_to_dencrypt"
+	fi
+}
+
+function passGen()
+{
+	if [ -n "$1" ]; then
+		tr -dc '[:alnum:][:graph:][:punct:]' </dev/urandom | head -c "$1" ; echo
+	else                                                                                                                                 
+		echo -e "Usage:\n\t${FUNCNAME[0]} <PASS_LENGTH>"
+	fi
+}
+
+function createPy()
+{
+	if [ -n "$1" ]; then
+		echo -e "#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n\n# Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/)\n\nimport sys, os\n\ndef main(argv):\n\tpass\n\nif __name__ == '__main__':\n\tmain(sys.argv)\n\tsys.exit(0)" >> "$1".py
+		chmod u+x "$1".py
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} python_src_to_create.py"
+	fi
+}
+
+function createSh()
+{
+	if [ -n "$1" ]; then
+		echo -e "#!/usr/bin/env bash\n" >> "$1".sh
+		echo -e "# Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/)\n" >> "$1".sh
+		echo -e "# Script exit if a command fails:" >> "$1".sh
+		echo -e "#set -e" >> "$1".sh
+		echo -e "#OR set -o errexit\n" >> "$1".sh
+		echo -e "# Script exit if a referenced variable is not declared:" >> "$1".sh
+		echo -e "#set -u" >> "$1".sh
+		echo -e "#OR set -o errexit\n" >> "$1".sh
+		echo -e "# If one command in a pipeline fails, its exit code will be returned as the result of the whole pipeline:" >> "$1".sh
+		echo -e "#set -o pipefail\n" >> "$1".sh
+		echo -e "# Activate tracing:" >> "$1".sh
+		echo -e "#set -x\n\n" >> "$1".sh
+		chmod u+x "$1".sh
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} shellscript_to_create.sh"
+	fi
+}
+
+function createC()
+{
+	if [ -n "$1" ]; then
+		echo -e '# Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/)' >> makefile
+		echo -e '# C flags:' >> makefile
+		echo -e 'CFLAGS_OPTIMIZATION = -g' >> makefile
+		echo -e '#CFLAGS_OPTIMIZATION = -O3' >> makefile
+		echo -e 'CFLAGS_VERSION = -std=c11' >> makefile
+		echo -e 'CFLAGS_WARNINGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-but-set-parameter' >> makefile
+		echo -e 'CFLAGS_DEFINES = -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D_POSIX_SOURCE=1 -D_DEFAULT_SOURCE=1 -D_GNU_SOURCE=1' >> makefile
+		echo -e 'CFLAGS = $(CFLAGS_OPTIMIZATION) $(CFLAGS_VERSION) $(CFLAGS_WARNINGS) $(CFLAGS_DEFINES)' >> makefile
+		echo -e '' >> makefile
+		echo -e '# System shell utilities' >> makefile
+		echo -e 'CC = gcc' >> makefile
+		echo -e 'RM = rm -fr' >> makefile
+		echo -e 'CP = cp' >> makefile
+		echo -e 'AR = ar' >> makefile
+		echo -e 'RANLIB = ranlib' >> makefile
+		echo -e 'CPPCHECK = cppcheck' >> makefile
+		echo -e '' >> makefile
+		echo -e 'INCLUDEPATH = -I./' >> makefile
+		echo -e 'LIBS = ' >> makefile
+		echo -e 'LIBPATH = -L./' >> makefile
+		echo -e '' >> makefile
+		echo -e 'all: clean exectag' >> makefile
+		echo -e '' >> makefile
+		echo -e 'exectag:' >> makefile
+		echo -e '\t@echo' >> makefile
+		echo -e '\t@echo "=== Compiling =============="' >> makefile
+		echo -e '\t$(CC) -o '$1 $1'.c $(CFLAGS) $(INCLUDEPATH) $(LIBPATH) $(LIBS)' >> makefile
+		echo -e '' >> makefile
+		echo -e 'clean:' >> makefile
+		echo -e '\t@echo' >> makefile
+		echo -e '\t@echo "=== clean_data =============="' >> makefile
+		echo -e '\t-$(RM) '$1' core' >> makefile
+
+		echo -e '/* Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/) */' >> "$1".c
+		echo -e '#include <stdio.h>' >> "$1".c
+		echo -e '#include <stdlib.h>' >> "$1".c
+		echo -e '#include <unistd.h>' >> "$1".c
+		echo -e '#include <string.h>' >> "$1".c
+		echo -e '#include <errno.h>' >> "$1".c
+		echo -e '#include <signal.h>' >> "$1".c
+		echo -e '#include <time.h>' >> "$1".c
+		echo -e '#include <sys/types.h>' >> "$1".c
+		echo -e '#include <sys/stat.h>' >> "$1".c
+		echo -e '' >> "$1".c
+		echo -e 'int main(int argc, char *argv[])' >> "$1".c
+		echo -e '{' >> "$1".c
+		echo -e '' >> "$1".c
+		echo -e '' >> "$1".c
+		echo -e '\treturn(0);' >> "$1".c
+		echo -e '}' >> "$1".c
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} c_source_to_create"
+	fi
+}
+
+function createCPP()
+{
+	if [ -n "$1" ]; then
+		echo -e '# Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/)' >> makefile
+		echo -e '# CPP flags:' >> makefile
+		echo -e 'CPP = g++' >> makefile
+		echo -e '#CPPFLAGS_VERSION = -std=c++11' >> makefile
+		echo -e 'CPPFLAGS_VERSION = -std=c++14' >> makefile
+		echo -e '#CPPFLAGS_VERSION = -std=c++17' >> makefile
+		echo -e 'CPPFLAGS = -g -Wall $(CPPFLAGS_VERSION) -D_XOPEN_SOURCE=700' >> makefile
+		echo -e '' >> makefile
+		echo -e 'INCLUDEPATH = ' >> makefile 
+		echo -e 'LIBPATH = ' >> makefile
+		echo -e 'LIBS = ' >> makefile
+		echo -e '' >> makefile
+		echo -e 'all: clean exectag' >> makefile
+		echo -e '' >> makefile
+		echo -e 'exectag:' >> makefile
+		echo -e '\t@echo' >> makefile
+		echo -e '\t@echo "=== Compiling =============="' >> makefile
+		echo -e '\t$(CPP) -o '$1 $1'.cpp $(CPPFLAGS) $(INCLUDEPATH) $(LIBPATH) $(LIBS)' >> makefile
+		echo -e '' >> makefile
+		echo -e 'clean:' >> makefile
+		echo -e '\t@echo' >> makefile
+		echo -e '\t@echo "=== clean_data =============="' >> makefile
+		echo -e '\t-$(RM) '$1' core' >> makefile
+
+		echo -e '/* Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/) */' >> "$1".cpp
+		echo -e '#include <iostream>' >> "$1".cpp
+		echo -e '#include <iomanip>' >> "$1".cpp
+		echo -e '#include <vector>' >> "$1".cpp
+		echo -e '#include <list>' >> "$1".cpp
+		echo -e '#include <map>' >> "$1".cpp
+		echo -e '#include <iterator>' >> "$1".cpp
+		echo -e '' >> "$1".cpp
+		echo -e '#include <sstream>' >> "$1".cpp
+		echo -e '#include <fstream>' >> "$1".cpp
+		echo -e '#include <streambuf>' >> "$1".cpp
+		echo -e '' >> "$1".cpp
+		echo -e 'using namespace std;' >> "$1".cpp
+		echo -e '' >> "$1".cpp
+		echo -e 'int main(int argc, char *argv[])' >> "$1".cpp
+		echo -e '{' >> "$1".cpp
+		echo -e '' >> "$1".cpp
+		echo -e '	return(0);' >> "$1".cpp
+		echo -e '}' >> "$1".cpp
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} cpp_source_to_create"
+	fi
+}
+
+function createRs()
+{
+	if [ -n "$1" ]; then
+		echo -e '//! André Augusto Giannotti Scotá' >> "$1".rs
+		echo -e '//!' >> "$1".rs
+		echo -e '//! https://sites.google.com/view/a2gs/' >> "$1".rs
+		echo -e '' >> "$1".rs
+		echo -e '//use std::env;' >> "$1".rs
+		echo -e 'use std::process;' >> "$1".rs
+		echo -e '' >> "$1".rs
+		echo -e '#[allow(non_snake_case)]' >> "$1".rs
+		echo -e '#[allow(non_camel_case_types)]' >> "$1".rs
+		echo -e '#[allow(unused_parens)]' >> "$1".rs
+		echo -e '//#[allow(unused_variables)]' >> "$1".rs
+		echo -e '' >> "$1".rs
+		echo -e '/// main' >> "$1".rs
+		echo -e '/// # Examples' >> "$1".rs
+		echo -e '/// ```' >> "$1".rs
+		echo -e '/// programName [param1] [param2]' >> "$1".rs
+		echo -e '///' >> "$1".rs
+		echo -e '/// Return code 0.' >> "$1".rs
+		echo -e '/// ```' >> "$1".rs
+		echo -e 'fn main()' >> "$1".rs
+		echo -e '{' >> "$1".rs
+		echo -e '\t/*' >> "$1".rs
+		echo -e '\tlet args: Vec<String> = env::args().collect();' >> "$1".rs
+		echo -e '' >> "$1".rs
+		echo -e '\tlet execName = &args[0];' >> "$1".rs
+		echo -e '\tlet param1   = &args[1];' >> "$1".rs
+		echo -e '\tlet param2   = &args[1];' >> "$1".rs
+		echo -e '' >> "$1".rs
+		echo -e '\tprintln!("Hello, world! {} {} {}", execName, param1, param2);' >> "$1".rs
+		echo -e '\t*/' >> "$1".rs
+		echo -e '' >> "$1".rs
+		echo -e '\tprocess::exit(0);' >> "$1".rs
+		echo -e '}' >> "$1".rs
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} rust_source_to_create"
+	fi
+}
+
+function createHTML()
+{
+	if [ -n "$1" ]; then
+		echo -e '<!-- Andre Augusto Giannotti Scota (https://sites.google.com/view/a2gs/) -->' >> "$1".html
+		echo -e '<!DOCTYPE html>' >> "$1".html
+		echo -e '<html>' >> "$1".html
+		echo -e '<head>' >> "$1".html
+		echo -e '<meta charset="utf-8">' >> "$1".html
+		echo -e '<title></title>' >> "$1".html
+		echo -e '</head>' >> "$1".html
+		echo -e '<body>' >> "$1".html
+		echo -e '</body>' >> "$1".html
+		echo -e '</html>' >> "$1".html
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} html_file_to_create"
+	fi
+}
