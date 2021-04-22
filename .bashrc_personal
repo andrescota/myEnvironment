@@ -9,11 +9,17 @@ export DEVADDRESS='efsappdev1.efs.local'
 export DITADDRESS='msp-wex-1006'
 
 function grepc(){
-	grep -rn $1 --include="*.ec" --include="*.c"
+	grep --color=always -rn $2 $1 --include="*.ec" --include="*.c"
 }
 
 function greph(){
-	grep -rn $1 --include="*.h"
+	grep --color=always -rn $2 $1 --include="*.h"
+}
+
+function grepch(){
+	grepc $1 $2
+	echo '========================================================================================='
+	greph $1 $2
 }
 # --- WEX -------------------------------------------------------------
 
