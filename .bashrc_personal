@@ -5,6 +5,7 @@ export PATH=$PATH:~/bin
 source parseDSV.sh
 
 # --- WEX -------------------------------------------------------------
+export DEVAWSADDRESS='cdev01d.efsdev.uw2.wexglobal.com'
 export DEVADDRESS='efsappdev1.efs.local'
 export DITADDRESS='msp-wex-1006'
 
