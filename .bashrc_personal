@@ -32,7 +32,7 @@ function grepch()
 	param=''
 
 	if [ ! -z "$2" ]; then
-		echo "COM SEGUNDO"
+		param="$2"
 	fi
 
 	patt=$1
