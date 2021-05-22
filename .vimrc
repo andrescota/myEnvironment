@@ -26,6 +26,8 @@ set laststatus=2
 set tabstop=3
 set shiftwidth=3
 set softtabstop=3
+set cino=)3;>3;<3
+set cindent
 set title
 set mouse=a
 set incsearch
@@ -35,8 +37,6 @@ set confirm
 set noexpandtab
 "set autoindent
 set nosmartindent
-set cindent
-set cino=)3;>3;<3
 set comments=sr:/*,mb:*,el:*/,://
 set formatoptions=croql
 set guifont=Courier\ 18
@@ -60,6 +60,6 @@ map <C-h>l :nohl<CR>
 map <F2> zfat
 map <F3> zo
 
-augroup python
-	autocmd FileType python setlocal noexpandtab tabstop=3 shiftwidth=3 softtabstop=3
-augroup end
+autocmd Filetype cpp setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab cino=)4;>4;<4
+autocmd Filetype hpp setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab cino=)4;>4;<4
+autocmd FileType python setlocal noexpandtab tabstop=3 shiftwidth=3 softtabstop=3
