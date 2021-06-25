@@ -106,6 +106,10 @@ function passGen()
 	fi
 }
 
+function psproc(){
+	ps -ef | grep -i "$1"
+}
+
 function createPy()
 {
 	if [ -n "$1" ]; then
