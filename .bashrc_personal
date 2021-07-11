@@ -41,6 +41,16 @@ function grepch()
 	echo '========================================================================================='
 	greph "$patt" "$param"
 }
+
+function insertSTXETX()
+{
+	if [ -n "$1" ]; then
+		echo -n -e "\x02`cat "$1"`\x03"
+	else
+		echo -e "Usage:\n\t${FUNCNAME[0]} file_to_add_STXETX\nOutput to stdout."
+	fi
+}
+
 # --- WEX -------------------------------------------------------------
 
 export EDITOR=vim
