@@ -33,6 +33,7 @@ set mouse=a
 set incsearch
 set nofoldenable
 set wildmenu
+set colorcolumn=120
 set confirm
 set noexpandtab
 "set autoindent
