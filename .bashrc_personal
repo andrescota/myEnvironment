@@ -51,6 +51,21 @@ function insertSTXETX()
 	fi
 }
 
+function ISQL()
+{
+	if [[ -z "$TCH_DB" ]]; then
+		echo 'Database no set in $TCH_DB environment variable'
+		return
+	fi
+	if [[ ! -z "$1" ]]; then
+		dbaccess <<SQLSTMTBLOCK
+			database "$TCH_DB";
+			$1;
+		SQLSTMTBLOCK
+	else
+		echo -e "Usage:\n\t$FUNCNAME 'SQL_STATEMENT_1; SQL_STATEMENT_2; <COMMIT;>'"
+	fi
+}
 # --- WEX -------------------------------------------------------------
 
 export EDITOR=vim
