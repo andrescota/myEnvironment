@@ -59,9 +59,9 @@ function ISQL()
 	fi
 	if [[ ! -z "$1" ]]; then
 		dbaccess <<SQLSTMTBLOCK
-			database "$TCH_DB";
-			$1;
-		SQLSTMTBLOCK
+database "$TCH_DB";
+$1;
+SQLSTMTBLOCK
 	else
 		echo -e "Usage:\n\t$FUNCNAME 'SQL_STATEMENT_1; SQL_STATEMENT_2; <COMMIT;>'"
 	fi
