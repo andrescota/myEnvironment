@@ -1,6 +1,7 @@
 set -o vi
 
 export PATH=$PATH:~/bin
+export TMUX_TMPDIR=~/
 
 source parseDSV.sh
 
